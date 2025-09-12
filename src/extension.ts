@@ -4,7 +4,7 @@ import { tryAcquirePositronApi, inPositron } from "@posit-dev/positron";
 
 export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
-    "positronExtension.demo",
+    "positronExtension.autotabs",
     () => {
     
       console.log(`Hello from ${inPositron() ? 'Positron': 'VSCode'}!`);

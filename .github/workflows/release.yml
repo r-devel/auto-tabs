@@ -1,0 +1,94 @@
+name: Build and Release VSIX
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          npm run compile
+          npm run lint
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Update version in package.json
+        run: |
+          # Extract version number without 'v' prefix
+          VERSION="${{ github.event.inputs.version }}"
+          VERSION_NUMBER="${VERSION#v}"
+
+          # Update package.json version
+          npm version "$VERSION_NUMBER" --no-git-tag-version
+
+      - name: Build VSIX
+        run: vsce package
+
+      - name: Get package info
+        id: package
+        run: |
+          VSIX_FILE=$(ls *.vsix)
+          echo "vsix_file=$VSIX_FILE" >> $GITHUB_OUTPUT
+          echo "package_name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: Auto Tabs ${{ github.event.inputs.version }}
+          body: |
+            ## Auto Tabs ${{ github.event.inputs.version }}
+
+            VS Code extension that automatically converts spaces to tabs, providing Emacs-like `indent-tabs-mode` behavior.
+
+            ### Installation
+            1. Download the `.vsix` file from the assets below
+            2. Open VS Code/Positron
+            3. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) to open Command Palette
+            4. Type "Extensions: Install from VSIX..." and select it
+            5. Browse to the downloaded `.vsix` file and install
+
+          draft: false
+          prerelease: false
+
+      - name: Upload VSIX to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.package.outputs.vsix_file }}
+          asset_name: ${{ steps.package.outputs.vsix_file }}
+          asset_content_type: application/zip
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-package
+          path: "*.vsix"
+          retention-days: 30

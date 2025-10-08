@@ -33,15 +33,6 @@ jobs:
       - name: Install vsce
         run: npm install -g @vscode/vsce
 
-      - name: Update version in package.json
-        run: |
-          # Extract version number without 'v' prefix
-          VERSION="${{ github.event.inputs.version }}"
-          VERSION_NUMBER="${VERSION#v}"
-
-          # Update package.json version
-          npm version "$VERSION_NUMBER" --no-git-tag-version
-
       - name: Build VSIX
         run: vsce package
 

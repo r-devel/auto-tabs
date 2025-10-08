@@ -1,142 +1,68 @@
-# Positron Extension Template
+# Auto Tabs
 
-A template repository for creating VS Code extensions that integrate with [Positron](https://positron.posit.co/), the next-generation data science IDE from Posit.
+A VS Code extension that automatically converts spaces to tabs, providing Emacs-like `indent-tabs-mode` behavior.
 
-## 🚀 Quick Start
+## Installation
 
-Click the "Use this template" button on GitHub to create your own repository based on this template.
+1. Go to the [GitHub releases page](https://github.com/r-devel/auto-tabs/releases)
+2. Download the latest `.vsix` file from the release assets
+3. Open VS Code/Positron.
+4. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) to open the Command Palette
+5. Type "Extensions: Install from VSIX..." and select it
+6. Browse to the downloaded `.vsix` file and select it
+7. The extension will be installed and activated automatically
 
-### Setup
+## Features
 
-1. Clone your new repository
-2. Update `package.json`:
-   - Change `name`, `displayName`, and `description`
-   - Update `publisher` to your publisher name
-   - Update `repository.url` to your repository URL
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Start developing!
+- **Smart Tab**: Press Tab to add indentation that automatically converts to tabs when threshold is reached
+- **Document Formatting**: Format entire documents or single lines
+- **Configurable**: Choose between leading-spaces-only or all-spaces conversion
 
-## 🏗️ Project Structure
+## Commands
 
-```
-positron-extension-template/
-├── src/
-│   ├── extension.ts      # Main extension entry point
-│   └── test/            # Test files
-│       ├── suite/       # Integration tests
-│       ├── mocks/       # API mocks
-│       └── helpers/     # Test utilities
-├── package.json          # Extension manifest
-├── tsconfig.json         # TypeScript configuration
-├── .vscode-test.mjs     # VS Code test configuration
-└── README.md            # This file
+- `auto-tabs.format` - Format entire document
+- `auto-tabs.formatLine` - Format current line only
+- `auto-tabs.smartTab` - Smart tab with automatic space-to-tab conversion
+
+## Configuration
+
+```json
+{
+  "autoTabs.convertAllSpaces": false
+}
 ```
 
-## 🔧 Development
+- `autoTabs.convertAllSpaces`: When `true`, converts all space sequences to tabs. When `false` (default), only converts leading spaces.
 
-### Running the Extension
+## Key Bindings
 
-1. Open this folder in VS Code or Positron
-2. Press `F5` or run "Run Extension" from the Debug panel
-3. A new window will open with your extension loaded
-4. Run the command "Positron Extension Demo" from the Command Palette (`Ctrl/Cmd+Shift+P`)
+The Tab key is automatically bound to `auto-tabs.smartTab` for C files, providing real-time indentation with space-to-tab conversion.
 
-### Available Scripts
+## Recommended Settings for R Core Development
 
-- `npm run compile` - Compile TypeScript to JavaScript
-- `npm run watch` - Watch for changes and recompile
-- `npm run lint` - Run ESLint
-- `npm run test` - Run test suite
-- `npm run pretest` - Compile and lint before testing
+Add this to your `.vscode/settings.json`:
 
-### Testing
+```json
+{
+    "[c]": {
+        "editor.defaultFormatter": "r-devel.auto-tabs",
+        "editor.insertSpaces": true,
+        "editor.indentSize": 4,
+        "editor.tabSize": 8,
+        "editor.detectIndentation": false,
+        "editor.formatOnSave": false,
+    }
+}
+```
 
-This template includes a lightweight testing setup for VS Code extensions:
+## Development
 
-- **Test Framework**: Mocha with TDD style
-- **Mocking**: Sinon for API mocking
-- **Test Runner**: Modern `@vscode/test-cli`
-- **Coverage**: Tests extension activation, command registration, and API interactions
-
-Run tests with:
 ```bash
+npm install
+npm run compile
 npm test
 ```
 
-The test suite includes:
-- Extension activation and presence verification
-- Command registration testing
-- Basic Positron API mocking for isolated testing
-- Graceful degradation when APIs are unavailable
-
-## 📚 Positron API Examples
-
-This template demonstrates key Positron APIs:
-
-### Detecting Positron Environment
-
-```typescript
-import { tryAcquirePositronApi, inPositron } from "@posit-dev/positron";
-
-// Check if running in Positron
-if (inPositron) {
-  console.log("Running in Positron!");
-}
-
-// Get Positron API
-const positron = tryAcquirePositronApi();
-if (positron) {
-  // Use Positron-specific features
-}
-```
-
-### Preview URLs in Viewer Pane
-
-```typescript
-positron.window.previewUrl(
-  vscode.Uri.parse("https://example.com")
-);
-```
-
-### Execute Code in Active Runtime
-
-```typescript
-// Execute Python code
-positron.runtime.executeCode(
-  "python",
-  'print("Hello from extension!")',
-  true  // focus console
-);
-
-// Execute R code
-positron.runtime.executeCode(
-  "r",
-  'print("Hello from R!")',
-  true
-);
-```
-
-## 📖 Resources
-
-- [Positron Documentation](https://positron.posit.co/)
-- [VS Code Extension API](https://code.visualstudio.com/api)
-- [@posit-dev/positron npm package](https://www.npmjs.com/package/@posit-dev/positron)
-- [VS Code Extension Samples](https://github.com/microsoft/vscode-extension-samples)
-
-## Contributing
-
-This is a template repository! Feel free to:
-- Report issues or suggest improvements
-- Submit PRs to enhance the template
-- Share your extensions built with this template
-
 ## License
 
-This template is available under the MIT License. See LICENSE file for details.
-
----
-
-Built with ❤️ for the Positron community
+MIT
